@@ -78,18 +78,20 @@ void loop() {
   // Ler o ângulo do giroscópio
   float angle = readAngle();
 
-  // Controla a velocidade dos motores
-  int motorSpeed = 204; // 80% da velocidade máxima (255 * 0.8)
-  if (angle > 20) {
+  // Controla a velocidade dos motores com base no ângulo do giroscópio
+  int motorSpeed;
+  if (angle > 18) {
     motorSpeed = 255; // 100% da velocidade
   } else if (angle < -5) {
-    motorSpeed = 77; // 30% da velocidade máxima (255 * 0.3)
+    motorSpeed = 51; // 20% da velocidade máxima (255 * 0.2)
+  } else {
+    motorSpeed = 204; // 80% da velocidade máxima (255 * 0.8)
   }
 
   // Lógica de controle dos motores
-  if (distance < 10) {  // Ajuste a distância conforme necessário
-    // Parar se o obstáculo estiver muito próximo
-    stopMotors();
+  if (distance < 5) {  // Ajuste a distância conforme necessário
+    // Executa a manobra especial ao detectar um obstáculo próximo
+    specialManeuver();
   } else if (leftDetectedGreen && rightDetectedGreen) {
     // Curva de 180 graus
     turnAround();
@@ -205,4 +207,55 @@ void stopMotors() {
   analogWrite(motor3Pin2, 0);
   analogWrite(motor4Pin1, 0);
   analogWrite(motor4Pin2, 0);
+}
+
+void specialManeuver() {
+  // Curva de 90 graus para a direita
+  turnRight();
+  delay(500); // Aguarda a curva completar
+  stopMotors();
+  
+  // Anda para frente por 0,5 segundos
+  moveForward(255);
+  delay(500);
+  stopMotors();
+  
+  // Curva de 90 graus para a esquerda
+  turnLeft();
+  delay(500);
+  stopMotors();
+  
+  // Anda para frente por 2 segundos
+  moveForward(255);
+  delay(2000);
+  stopMotors();
+  
+  // Curva de 90 graus para a esquerda
+  turnLeft();
+  delay(500);
+  stopMotors();
+  
+  // Anda para frente por 0,5 segundos
+  moveForward(255);
+  delay(500);
+  stopMotors();
+  
+  // Curva de 90 graus para a esquerda
+  turnLeft();
+  delay(500);
+  stopMotors();
+  
+  // Anda para frente por 0,5 segundos
+  moveForward(255);
+  delay(500);
+  stopMotors();
+  
+  // Verifica se uma linha foi detectada durante o percurso
+  bool leftDetectedGreen = isGreenDetected(leftSensor);
+  bool rightDetectedGreen = isGreenDetected(rightSensor);
+  
+  if (leftDetectedGreen || rightDetectedGreen) {
+    // Continua seguindo a linha
+    return;
+  }
 }
