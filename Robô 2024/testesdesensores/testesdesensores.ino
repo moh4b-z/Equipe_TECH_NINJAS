@@ -1,26 +1,11 @@
 #include <Wire.h>
-#include <TCS3200.h>
 #include <MPU6050.h>
 
-// Definição dos pinos dos motores (não utilizados neste código)
-const int motor1Pin1 = 2;
-const int motor1Pin2 = 3;
-const int motor2Pin1 = 4;
-const int motor2Pin2 = 5;
-const int motor3Pin1 = 6;
-const int motor3Pin2 = 7;
-const int motor4Pin1 = 8;
-const int motor4Pin2 = 9;
-
 // Definição dos pinos dos sensores de cor
-const int leftS0 = 22;
-const int leftS1 = 24;
 const int leftS2 = 26;
 const int leftS3 = 28;
 const int leftOut = 30;
 
-const int rightS0 = 32;
-const int rightS1 = 34;
 const int rightS2 = 36;
 const int rightS3 = 38;
 const int rightOut = 40;
@@ -29,24 +14,11 @@ const int rightOut = 40;
 const int trigPin = 12;
 const int echoPin = 13;
 
-// Criação dos objetos do sensor de cor
-TCS3200 leftSensor(leftS0, leftS1, leftS2, leftS3, leftOut);
-TCS3200 rightSensor(rightS0, rightS1, rightS2, rightS3, rightOut);
-
-// Criação do objeto do giroscópio
 MPU6050 mpu;
 
 void setup() {
   // Inicializa a comunicação serial para depuração
   Serial.begin(9600);
-
-  // Inicializa os sensores de cor
-  leftSensor.begin();
-  rightSensor.begin();
-
-  // Inicializa os pinos do sensor ultrassônico
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
 
   // Inicializa o giroscópio
   Wire.begin();
@@ -55,12 +27,25 @@ void setup() {
     Serial.println("MPU6050 connection failed");
     while (1);
   }
+
+  // Configuração inicial dos pinos dos sensores de cor
+  pinMode(leftS2, OUTPUT);
+  pinMode(leftS3, OUTPUT);
+  pinMode(leftOut, INPUT);
+
+  pinMode(rightS2, OUTPUT);
+  pinMode(rightS3, OUTPUT);
+  pinMode(rightOut, INPUT);
+
+  // Configura os pinos dos sensores de linha
+  pinMode(10, INPUT);
+  pinMode(11, INPUT);
 }
 
 void loop() {
   // Ler a cor detectada pelos sensores de cor
-  String leftColor = detectColor(leftSensor);
-  String rightColor = detectColor(rightSensor);
+  String leftColor = detectColor(leftS2, leftS3, leftOut);
+  String rightColor = detectColor(rightS2, rightS3, rightOut);
 
   // Ler a distância do sensor ultrassônico
   long distance = readUltrasonicDistance(trigPin, echoPin);
@@ -80,33 +65,44 @@ void loop() {
   Serial.print(angle);
   Serial.println(" degrees");
 
-  delay(1000); // Pausa de 1 segundo antes da próxima leitura
+  // Verifica os sensores de linha
+  Serial.print("Left Line Sensor: ");
+  Serial.println(digitalRead(10) == HIGH ? "High" : "Low");
+  Serial.print("Right Line Sensor: ");
+  Serial.println(digitalRead(11) == HIGH ? "High" : "Low");
+
+  Serial.println(); // Adiciona uma linha em branco para separar as leituras
+
+  // Não há mais delay aqui para garantir que as leituras sejam exibidas continuamente
 }
 
-String detectColor(TCS3200 &sensor) {
+String detectColor(int pinS2, int pinS3, int pinOut) {
   // Detecta a cor vermelha
-  sensor.setFilter(TCS3200::FILTER_RED);
-  delay(100);
-  int redFrequency = sensor.read();
+  digitalWrite(pinS2, LOW);
+  digitalWrite(pinS3, LOW);
+  unsigned int redValue = pulseIn(pinOut, digitalRead(pinOut) == HIGH ? LOW : HIGH);
 
-  // Detecta a cor verde
-  sensor.setFilter(TCS3200::FILTER_GREEN);
-  delay(100);
-  int greenFrequency = sensor.read();
+  // Sem filtro
+  digitalWrite(pinS2, HIGH);
+  unsigned int whiteValue = pulseIn(pinOut, digitalRead(pinOut) == HIGH ? LOW : HIGH);
 
   // Detecta a cor azul
-  sensor.setFilter(TCS3200::FILTER_BLUE);
-  delay(100);
-  int blueFrequency = sensor.read();
+  digitalWrite(pinS2, LOW);
+  digitalWrite(pinS3, HIGH);
+  unsigned int blueValue = pulseIn(pinOut, digitalRead(pinOut) == HIGH ? LOW : HIGH);
+
+  // Detecta a cor verde
+  digitalWrite(pinS2, HIGH);
+  unsigned int greenValue = pulseIn(pinOut, digitalRead(pinOut) == HIGH ? LOW : HIGH);
 
   // Define os limiares para a detecção das cores
   int threshold = 200; // Ajuste conforme necessário
 
-  if (redFrequency > threshold && redFrequency > greenFrequency && redFrequency > blueFrequency) {
+  if (redValue > threshold && redValue > greenValue && redValue > blueValue) {
     return "Red";
-  } else if (greenFrequency > threshold && greenFrequency > redFrequency && greenFrequency > blueFrequency) {
+  } else if (greenValue > threshold && greenValue > redValue && greenValue > blueValue) {
     return "Green";
-  } else if (blueFrequency > threshold && blueFrequency > redFrequency && blueFrequency > greenFrequency) {
+  } else if (blueValue > threshold && blueValue > redValue && blueValue > greenValue) {
     return "Blue";
   } else {
     return "Unknown";
