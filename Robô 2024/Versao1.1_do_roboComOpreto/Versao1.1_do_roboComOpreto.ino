@@ -39,6 +39,11 @@ MPU6050 mpu;
 unsigned long lastLineDetectionTime = 0;
 const unsigned long lineDetectionTimeout = 5000; // 5 segundos
 
+// Variável para controle da detecção de cor
+bool deteccaoCorAtiva = true;
+unsigned long tempoDesativacaoCor = 0;
+const unsigned long duracaoDesativacaoCor = 1000; // 1 segundo
+
 // Funções de controle dos motores
 void avancar();
 void pararMotores();
@@ -111,8 +116,11 @@ void setup() {
 }
 
 void loop() {
-  // Ler as informações dos sensores de cor
-  detectaCor();
+  // Verifica se a detecção de cor está ativa
+  if (deteccaoCorAtiva) {
+    // Ler as informações dos sensores de cor
+    detectaCor();
+  }
 
   // Ler as informações dos sensores de linha
   bool leftLine = digitalRead(lineSensorLeft);
@@ -134,7 +142,7 @@ void loop() {
   }
 
   // Mostra valores no serial monitor esquerdo
-  Serial.print("Vermelho esquerdo:");
+  Serial.print("Vermelho esquerdo: ");
   Serial.print(valorVermelho);
 
   Serial.print(" Verde esquerdo: ");
@@ -148,7 +156,7 @@ void loop() {
   Serial.println();
   
   // Mostra valores no serial monitor direito
-  Serial.print("Vermelho direito:");
+  Serial.print("Vermelho direito: ");
   Serial.print(valorVermelhoR);
 
   Serial.print(" Verde direito: ");
@@ -160,6 +168,22 @@ void loop() {
   Serial.print(" Branco direito: ");
   Serial.print(valorBrancoR);
   Serial.println();
+
+  // Verifica se a cor preta foi detectada
+  if ((valorVermelho < 50) &&
+      (valorVerde < 50) &&
+      (valorAzul < 50) &&
+      (valorBranco < 50)) {
+    // Desativa a detecção de cor por 1 segundo
+    deteccaoCorAtiva = false;
+    tempoDesativacaoCor = millis();
+  }
+
+  // Verifica se o tempo de desativação da detecção de cor foi atingido
+  if (!deteccaoCorAtiva && (millis() - tempoDesativacaoCor >= duracaoDesativacaoCor)) {
+    // Reativa a detecção de cor
+    deteccaoCorAtiva = true;
+  }
 
   // Verifica se a cor vermelha foi detectada no sensor esquerdo
   if ((valorVermelho < valorAzul) &&
