@@ -1,5 +1,4 @@
 #include <Wire.h>
-#include <MPU6050.h>
 
 // Definição dos pinos dos motores
 const int motor1Pin1 = 2;
@@ -32,8 +31,6 @@ const int echoPin = 13;
 const int lineSensorLeft = 44;
 const int lineSensorRight = 46;
 
-// Giroscópio
-MPU6050 mpu;
 
 // Variáveis para controle de tempo
 unsigned long lastLineDetectionTime = 0;
@@ -98,13 +95,6 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
-  // Inicialização do giroscópio
-  Wire.begin();
-  mpu.initialize();
-  if (!mpu.testConnection()) {
-    Serial.println("Conexão com MPU6050 falhou");
-    while (1);
-  }
 
   // Inicialização da comunicação serial
   Serial.begin(9600);

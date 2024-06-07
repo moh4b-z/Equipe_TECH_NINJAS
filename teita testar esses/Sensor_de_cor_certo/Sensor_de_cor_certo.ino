@@ -1,3 +1,5 @@
+#include <Adafruit_TCS34725.h>
+
 // Pinos de conexao do modulo
 #define leftS0 22
 #define leftS1 24
