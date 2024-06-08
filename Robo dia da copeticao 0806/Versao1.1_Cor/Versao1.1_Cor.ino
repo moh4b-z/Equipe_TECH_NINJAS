@@ -311,13 +311,13 @@ void Desvio() {
 }
 
 void avancar() {
-  digitalWrite(motor1Pin1, velocidade);
+  digitalWrite(motor1Pin1, HIGH);
   digitalWrite(motor1Pin2, LOW);
-  digitalWrite(motor2Pin1, velocidade);
+  digitalWrite(motor2Pin1, HIGH);
   digitalWrite(motor2Pin2, LOW);
-  digitalWrite(motor3Pin1, velocidade);
+  digitalWrite(motor3Pin1, HIGH);
   digitalWrite(motor3Pin2, LOW);
-  digitalWrite(motor4Pin1, velocidade);
+  digitalWrite(motor4Pin1, HIGH);
   digitalWrite(motor4Pin2, LOW);
 }
 
@@ -334,24 +334,24 @@ void pararMotores() {
 
 void virarEsquerda() {
   digitalWrite(motor1Pin1, LOW);
-  digitalWrite(motor1Pin2, velocidade);
-  digitalWrite(motor2Pin1, velocidade);
+  digitalWrite(motor1Pin2, HIGH);
+  digitalWrite(motor2Pin1, HIGH);
   digitalWrite(motor2Pin2, LOW);
   digitalWrite(motor3Pin1, LOW);
-  digitalWrite(motor3Pin2, velocidade);
-  digitalWrite(motor4Pin1, velocidade);
+  digitalWrite(motor3Pin2, HIGH);
+  digitalWrite(motor4Pin1, HIGH);
   digitalWrite(motor4Pin2, LOW);
 }
 
 void virarDireita() {
-  digitalWrite(motor1Pin1, velocidade);
+  digitalWrite(motor1Pin1, HIGH);
   digitalWrite(motor1Pin2, LOW);
   digitalWrite(motor2Pin1, LOW);
-  digitalWrite(motor2Pin2, velocidade);
-  digitalWrite(motor3Pin1, velocidade);
+  digitalWrite(motor2Pin2, HIGH);
+  digitalWrite(motor3Pin1, HIGH);
   digitalWrite(motor3Pin2, LOW);
   digitalWrite(motor4Pin1, LOW);
-  digitalWrite(motor4Pin2, velocidade);
+  digitalWrite(motor4Pin2, HIGH);
 }
 
 void virarParaTras() {
